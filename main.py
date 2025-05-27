@@ -1,11 +1,13 @@
-from fastapi import FastAPI, Request, Form
+from fastapi import FastAPI, Form
 from fastapi.responses import PlainTextResponse
-import openai
+from openai import OpenAI
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
+
+# Inicializa o cliente da OpenAI com a nova interface
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 app = FastAPI()
 
@@ -40,11 +42,12 @@ async def whatsapp_webhook(From: str = Form(...), Body: str = Form(...)):
         {"role": "user", "content": Body}
     ]
 
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model="gpt-4o",
         messages=messages,
         max_tokens=600
     )
 
     reply = response.choices[0].message.content.strip()
+
     return PlainTextResponse(f"<Response><Message>{reply}</Message></Response>", media_type="application/xml")
