@@ -6,10 +6,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Inicializa o cliente da OpenAI com a nova interface
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 app = FastAPI()
+
+# Dicionário que mapeia o número do usuário para o histórico da conversa
+chat_history = {}
 
 conditions = """You are a virtual assistant named SOS DENTAL TRAUMA, and your purpose is to help patients who have suffered dental trauma by guiding them on how to proceed before seeing a dentist. Act as a healthcare professional, offering guidance on what to do immediately after a dental injury until professional help is available. Only respond to questions related to dental trauma. For any other subject, reply that you are not qualified to answer. Begin the conversation by introducing yourself, explaining your purpose, and asking for the patient’s age. Once the age is provided, ask whether the affected tooth is permanent or deciduous (baby tooth).
 
@@ -35,19 +37,27 @@ Provide the following instructions based on the trauma type involving deciduous 
 • Slight extrusion: 1) STAY CALM (child and guardian); 2) Seek IMMEDIATE dental care; 3) DO NOT reposition the tooth at home; 4) Gentle oral hygiene.
 • Total loss of the tooth (avulsed): 1) STAY CALM (child and guardian); 2) Check that the child did not aspirate or swallow the tooth — if suspected, seek emergency medical care; 3) If not, seek IMMEDIATE dental care; 4) DO NOT reimplant baby teeth; 5) Follow-up to monitor development of the permanent tooth."""
 
+
 @app.post("/webhook")
 async def whatsapp_webhook(From: str = Form(...), Body: str = Form(...)):
-    messages = [
-        {"role": "user", "content": conditions},
-        {"role": "user", "content": Body}
-    ]
+    # Recupera o histórico ou inicia com o prompt base
+    if From not in chat_history:
+        chat_history[From] = [{"role": "user", "content": conditions}]
 
+    # Adiciona a nova entrada do usuário ao histórico
+    chat_history[From].append({"role": "user", "content": Body})
+
+    # Faz a chamada à OpenAI com todo o histórico
     response = client.chat.completions.create(
         model="gpt-4o",
-        messages=messages,
+        messages=chat_history[From],
         max_tokens=600
     )
 
     reply = response.choices[0].message.content.strip()
 
+    # Adiciona a resposta ao histórico
+    chat_history[From].append({"role": "assistant", "content": reply})
+
+    # Retorna a resposta em XML para o Twilio
     return PlainTextResponse(f"<Response><Message>{reply}</Message></Response>", media_type="application/xml")
