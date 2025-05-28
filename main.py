@@ -87,7 +87,7 @@ async def whatsapp_webhook(request: Request):
 
     # Inicializa histórico do número, se necessário
     if from_number not in conversation_history:
-        conversation_history[from_number] = [{"role": "user", "content": condicoes}]
+        conversation_history[from_number] = [{"role": "system", "content": "\n".join(conditions)}]
 
     # Adiciona mensagem do usuário
     conversation_history[from_number].append({"role": "user", "content": incoming_msg})
