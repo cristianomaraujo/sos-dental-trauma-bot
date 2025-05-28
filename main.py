@@ -85,6 +85,10 @@ async def whatsapp_webhook(request: Request):
     if not incoming_msg or not from_number:
         return JSONResponse(status_code=400, content={"error": "Missing message or sender"})
 
+    # Garante que o número tenha o prefixo "whatsapp:"
+    if not from_number.startswith("whatsapp:"):
+        from_number = "whatsapp:" + from_number
+
     # Inicializa histórico do número, se necessário
     if from_number not in conversation_history:
         conversation_history[from_number] = [{"role": "system", "content": "\n".join(conditions)}]
@@ -104,12 +108,20 @@ async def whatsapp_webhook(request: Request):
     # Adiciona resposta ao histórico
     conversation_history[from_number].append({"role": "assistant", "content": resposta})
 
-    # Envia resposta via Twilio
-    twilio_client.messages.create(
-        messaging_service_sid='MG6a32c52fa9992df89ba233003054f67b',
-        to=from_number,
-        body=resposta
-    )
+    # Logs para depuração
+    print(f"Enviando mensagem para: {from_number}")
+    print(f"Resposta gerada: {resposta}")
+
+    # Tenta enviar resposta via Twilio
+    try:
+        message = twilio_client.messages.create(
+            messaging_service_sid='MG6a32c52fa9992df89ba233003054f67b',
+            to=from_number,
+            body=resposta
+        )
+        print(f"Mensagem enviada com sucesso! SID: {message.sid}")
+    except Exception as e:
+        print(f"Erro ao enviar mensagem com Twilio: {e}")
 
     return JSONResponse(content={"status": "mensagem enviada"})
 
