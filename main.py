@@ -1,17 +1,23 @@
-from fastapi import FastAPI, Form
-from fastapi.responses import PlainTextResponse
-from openai import OpenAI
 import os
-from dotenv import load_dotenv
-
-load_dotenv()
-
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+from openai import OpenAI
+from twilio.rest import Client
+import uvicorn
 
 app = FastAPI()
 
-# Dicionário que mapeia o número do usuário para o histórico da conversa
-chat_history = {}
+# Configurações de ambiente
+ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
+AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+# Inicialização dos clientes
+twilio_client = Client(ACCOUNT_SID, AUTH_TOKEN)
+client = OpenAI(api_key=OPENAI_API_KEY)
+
+# Histórico de conversas
+conversation_history = {}
 
 conditions = (
     "You are a virtual assistant called SOS DENTAL TRAUMA, and your goal is to help patients who have experienced dental trauma by guiding them on what to do before professional dental care.",
@@ -71,25 +77,42 @@ conditions = (
 
 
 @app.post("/webhook")
-async def whatsapp_webhook(From: str = Form(...), Body: str = Form(...)):
-    # Recupera o histórico ou inicia com o prompt base
-    if From not in chat_history:
-        chat_history[From] = [{"role": "user", "content": "\n".join(conditions)}]
+async def whatsapp_webhook(request: Request):
+    form = await request.form()
+    incoming_msg = form.get("Body")
+    from_number = form.get("From")
 
-    # Adiciona a nova entrada do usuário ao histórico
-    chat_history[From].append({"role": "user", "content": Body})
+    if not incoming_msg or not from_number:
+        return JSONResponse(status_code=400, content={"error": "Missing message or sender"})
 
-    # Faz a chamada à OpenAI com todo o histórico
-    response = client.chat.completions.create(
+    # Inicializa histórico do número, se necessário
+    if from_number not in conversation_history:
+        conversation_history[from_number] = [{"role": "user", "content": condicoes}]
+
+    # Adiciona mensagem do usuário
+    conversation_history[from_number].append({"role": "user", "content": incoming_msg})
+
+    # Gera resposta com OpenAI
+    completion = client.chat.completions.create(
         model="gpt-4o",
-        messages=chat_history[From],
-        max_tokens=600
+        messages=conversation_history[from_number],
+        temperature=0.7,
     )
 
-    reply = response.choices[0].message.content.strip()
+    resposta = completion.choices[0].message.content
 
-    # Adiciona a resposta ao histórico
-    chat_history[From].append({"role": "assistant", "content": reply})
+    # Adiciona resposta ao histórico
+    conversation_history[from_number].append({"role": "assistant", "content": resposta})
 
-    # Retorna a resposta em XML para o Twilio
-    return PlainTextResponse(f"<Response><Message>{reply}</Message></Response>", media_type="application/xml")
+    # Envia resposta via Twilio
+    twilio_client.messages.create(
+        from_='whatsapp:+14155238886',  # substitua pelo número verificado se estiver fora do sandbox
+        to=from_number,
+        body=resposta
+    )
+
+    return JSONResponse(content={"status": "mensagem enviada"})
+
+# Opcional para rodar localmente
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
