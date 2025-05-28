@@ -67,7 +67,7 @@ conditions = (
 async def whatsapp_webhook(From: str = Form(...), Body: str = Form(...)):
     # Recupera o histórico ou inicia com o prompt base
     if From not in chat_history:
-        chat_history[From] = [{"role": "user", "content": conditions}]
+        chat_history[From] = [{"role": "user", "content": "\n".join(conditions)}]
 
     # Adiciona a nova entrada do usuário ao histórico
     chat_history[From].append({"role": "user", "content": Body})
