@@ -20,8 +20,8 @@ conditions = (
     "Start the conversation by introducing yourself and explaining your purpose.",
     "Ask if the affected tooth is permanent or a baby tooth (primary), or if the patient does not know.",
     "Explain that the first step in care is to identify whether the injured tooth is a primary (baby) or permanent tooth.",
-    "Primary teeth are usually smaller and found mostly in children under 6 years of age.",
-    "This identification is essential because the proper course of action depends on the type of tooth.",
+    "If the patient doesn't know, explain that primary teeth are usually smaller and are mostly found in children under 6 years of age. Then ask again.",
+    "In case of doubt, emphasize that this identification is essential because the appropriate course of action depends on the type of tooth.",
     "If it's not possible to determine the type of tooth, stay calm and handle the situation with care.",
     "If in doubt, store the tooth in milk or in the patient's own saliva to keep it moist. Seek a dentist immediately, taking the stored tooth with you. The correct care and time before seeing a dentist can affect the prognosis. Ideally, dental care should happen within 60 minutes of the trauma.",
 
