@@ -106,7 +106,7 @@ async def whatsapp_webhook(request: Request):
 
     # Envia resposta via Twilio
     twilio_client.messages.create(
-        from_='whatsapp:+14155238886',  # substitua pelo número verificado se estiver fora do sandbox
+        from_='whatsapp:+5541991925212',  # substitua pelo número verificado se estiver fora do sandbox
         to=from_number,
         body=resposta
     )
