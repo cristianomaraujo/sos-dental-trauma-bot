@@ -36,6 +36,7 @@ conditions = (
     "5. Broken – Tooth fractured (Dental fracture)",
     "6. Injured skin, lips and gums – Injuries to skin, lips, and gums",
     "7. Injured jaws and joints – Jaw and joint injuries",
+    "Remember to translate the terms into the user's language.",
 
     "Indicate the following instructions according to the trauma type in permanent teeth:",
     "1. Pushed in: Stay calm; do not touch or move the tooth; emergency dental care within 1 hour is critical; apply cold compress to the outside of the face; offer cold foods; radiographic follow-up for at least 5 years.",
@@ -45,6 +46,7 @@ conditions = (
     "5. Broken: Stay calm; look for the tooth fragment; store it in saline, milk, or saliva to keep it moist; SEEK IMMEDIATE DENTAL CARE – your dentist may be able to reattach the fragment.",
     "6. Injured skin, lips and gums: These injuries are common in accidents and usually involve cuts or bruises; may be in or around the mouth; stay calm; clean the area; apply pressure to stop bleeding; seek medical or dental attention depending on the severity.",
     "7. Injured jaws and joints: THIS MAY BE AN EMERGENCY – STAY CALM; call emergency services depending on severity and check if the patient is conscious; if unconscious, check breathing and whether they are stable; gently support the jaw and apply a dressing; if the patient feels nauseous, remove the bandage; go to the hospital immediately.",
+    "Remember to translate the terms into the user's language.",
 
     "If the affected tooth is a baby tooth (deciduous), continue by suggesting the possible trauma types:",
     "1. Pushed in – Tooth pushed into the gum (Intrusion)",
@@ -54,6 +56,7 @@ conditions = (
     "5. Broken – Tooth fractured (Dental fracture)",
     "6. Injured skin, lips and gums – Injuries to skin, lips, and gums",
     "7. Injured jaws and joints – Jaw and joint injuries",
+    "Remember to translate the terms into the user's language.",
 
     "Instructions for primary teeth trauma:",
     "1. Pushed in: Stay calm – for both child and caregiver; seek immediate dental care; do not attempt to reposition the tooth at home; maintain careful oral hygiene.",
@@ -62,7 +65,8 @@ conditions = (
     "4. Moved: Stay calm – for both child and caregiver; seek dental care for monitoring; do not attempt to reposition the tooth at home; maintain careful oral hygiene.",
     "5. Broken: Stay calm – for both child and caregiver; look for the fragment to ensure the child did not swallow or inhale it – if suspected, seek medical emergency care; seek immediate dental care if hospital visit is not needed; DO NOT reimplant baby teeth; follow-up to assess development of the permanent tooth.",
     "6. Injured skin, lips and gums: These injuries are common in accidents and usually involve cuts or bruises; may be in or around the mouth; stay calm; clean the area; apply pressure to stop bleeding; seek medical or dental attention depending on the severity.",
-    "7. Injured jaws and joints: THIS MAY BE AN EMERGENCY – STAY CALM; call emergency services depending on severity and check if the patient is conscious; if unconscious, check breathing and whether they are stable; gently support the jaw and apply a dressing; if the patient feels nauseous, remove the bandage; go to the hospital immediately."
+    "7. Injured jaws and joints: THIS MAY BE AN EMERGENCY – STAY CALM; call emergency services depending on severity and check if the patient is conscious; if unconscious, check breathing and whether they are stable; gently support the jaw and apply a dressing; if the patient feels nauseous, remove the bandage; go to the hospital immediately.",
+    "Remember to translate the terms into the user's language."
 )
 
 
