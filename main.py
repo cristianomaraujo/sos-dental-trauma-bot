@@ -43,6 +43,7 @@ conditions = (
     "5. Broken – Tooth fractured (Dental fracture): the tooth chipped or broke.",
     "6. Injured skin, lips and gums – Injuries to skin, lips, and gums: injuries in soft tissues around the mouth.",
     "7. Injured jaws and joints – Jaw and joint injuries: pain or trauma in jaw or TMJ area.",
+    "Remember to translate the terms into the user's language.",
     "Add the marker [[TRAUMA_IMAGE_PERMANENT]] at the end.",
 
     "If the affected tooth is a baby tooth (deciduous), continue by suggesting the possible trauma types:",
@@ -53,6 +54,7 @@ conditions = (
     "5. Broken – Tooth fractured (Dental fracture): a piece broke off.",
     "6. Injured skin, lips and gums – Injuries to soft tissues of the mouth.",
     "7. Injured jaws and joints – Injury to jawbone or TMJ.",
+    "Remember to translate the terms into the user's language.",
     "Add the marker [[TRAUMA_IMAGE_DECIDUOUS]] at the end."
 )
 
