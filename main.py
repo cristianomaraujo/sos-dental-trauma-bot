@@ -46,6 +46,8 @@ conditions = (
     "Remember to translate the terms into the user's language.",
     "Add the marker [[TRAUMA_IMAGE_PERMANENT]] at the end.",
 
+
+
     "If the affected tooth is a baby tooth (deciduous), continue by suggesting the possible trauma types:",
     "1. Pushed in – Tooth pushed into the gum (Intrusion): baby tooth enters the gum.",
     "2. Loosened – Tooth loosened (Subluxation): mobile without falling.",
@@ -55,8 +57,30 @@ conditions = (
     "6. Injured skin, lips and gums – Injuries to soft tissues of the mouth.",
     "7. Injured jaws and joints – Injury to jawbone or TMJ.",
     "Remember to translate the terms into the user's language.",
-    "Add the marker [[TRAUMA_IMAGE_DECIDUOUS]] at the end."
+    "Add the marker [[TRAUMA_IMAGE_DECIDUOUS]] at the end.",
+
+    "Only provide guidance if the patient knows what type of trauma occurred.",
+    "Once the patient identifies the type of trauma and whether it involves a permanent or primary tooth, provide the appropriate instructions listed below based on the type of trauma and dentition.",
+
+    "Provide the following instructions according to the trauma type involving permanent teeth: ",
+    "1. Pushed in (Intrusion): Stay calm; do not touch or move the tooth; urgent dental care within 1 hour is critical; apply a cold compress to the face; offer cold foods; radiographic follow-up with a dentist is needed for at least 5 years.",
+    "2. Loosened (Subluxation): Stay calm; seek dental care if there is pain; try gently repositioning the tooth if possible; maintain good oral hygiene; cold compress or cold foods help if there is swelling; dentist follow-up is required.",
+    "3. Knocked out (Avulsion): Stay calm; check if the person is vomiting or unconscious (if so, go to the ER); locate the tooth; hold it by the crown (top visible white part); rinse gently with saline or running water without scrubbing; replant immediately if possible; ask the patient to bite on gauze or paper to hold it in place; go to the dentist quickly; if reimplantation is not possible, store in milk or under the tongue if the patient is conscious; NEVER store in tap water or allow it to dry; seek care within 60 minutes; long-term clinical and radiographic follow-up is needed.",
+    "4. Moved (Luxation): Stay calm; rinse the mouth with water; try gently repositioning the tooth; apply light pressure with gauze or cloth; seek emergency dental care immediately – THE FIRST HOUR IS CRITICAL; dentist follow-up for at least 5 years is necessary.",
+    "5. Broken (Crown Fracture): Stay calm; locate the fragment; store in saline, milk, or saliva; see the dentist immediately – the sooner, the better the chances of reattaching the fragment.",
+    "6. Injured skin, lips and gums: Common in accidents; usually involve cuts or bruises; stay calm; clean the area; apply pressure to stop bleeding; seek medical or dental care depending on severity.",
+    "7. Injured jaws and joints: COULD BE AN EMERGENCY – STAY CALM; call emergency services if needed and check if the patient is conscious; if unconscious, check breathing and stability; gently support the jaw with a bandage or dressing; if the patient feels nauseous, remove the bandage; go to the hospital immediately.",
+
+    "Provide the following instructions based on the trauma type involving deciduous teeth: ",
+    "1. Pushed in (Intrusion): Stay calm — for both the child and caregiver; seek immediate dental care; do not attempt to reposition at home; maintain gentle oral hygiene.",
+    "2. Loosened (Subluxation): Stay calm — for both the child and caregiver; go to the dentist for follow-up; do not attempt repositioning; keep the area clean.",
+    "3. Knocked out (Avulsion): Stay calm — for both the child and caregiver; look for the tooth and check if it was swallowed or inhaled — if in doubt, go to the ER; if not necessary, go straight to the dentist; NEVER reimplant baby teeth; monitoring of the permanent tooth development is required.",
+    "4. Moved: Stay calm — for both the child and caregiver; see a dentist for follow-up; do not reposition; keep the area clean.",
+    "5. Broken (Crown Fracture): Stay calm — for both the child and caregiver; look for the fragment and check if it was swallowed or inhaled — if so, go to the ER; if not necessary, go to the dentist to reattach the fragment, storing it in saline, milk, or saliva; NEVER reimplant baby teeth; follow-up for the permanent tooth is essential over the years.",
+    "6. Injured skin, lips and gums: Common in accidents; involve cuts or bruises in the mouth; stay calm; clean the area; apply pressure to stop bleeding; seek care depending on the severity.",
+    "7. Injured jaws and joints: COULD BE AN EMERGENCY – STAY CALM; call emergency services if needed; if unconscious, check breathing and stability; support the jaw with a dressing; remove the bandage if the patient feels nauseous; go to the hospital immediately."
 )
+
 
 @app.post("/webhook")
 async def whatsapp_webhook(request: Request):
