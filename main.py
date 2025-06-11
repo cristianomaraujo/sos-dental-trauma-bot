@@ -1,4 +1,3 @@
-
 import os
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -33,23 +32,25 @@ conditions = (
     "If it's not possible to determine the type of tooth, stay calm and handle the situation with care.",
     "If in doubt, store the tooth in milk or in the patient's own saliva to keep it moist — this applies when a tooth is knocked out or when a piece is available in cases of fracture. Seek a dentist immediately, taking the stored tooth or fragment with you. The correct care and time before seeing a dentist can affect the prognosis. Ideally, dental care should happen within 60 minutes of the trauma.",
     "If the patient is unsure about the type of tooth, provide only the general guidelines mentioned above. Do not proceed with any additional first-aid instructions. Emphasize the importance of seeking professional dental care as soon as possible. Ask if there are any further questions; if not, end the consultation.",
+
     "If the affected tooth is permanent, continue by suggesting the possible trauma types:",
-    "1. Pushed in – Tooth pushed into the gum (Intrusion)",
-    "2. Loosened – Tooth loosened (Subluxation or increased mobility without displacement)",
-    "3. Knocked out – Tooth knocked out (Avulsion)",
-    "4. Moved – Tooth displaced but still in the mouth (Luxation)",
-    "5. Broken – Tooth fractured (Dental fracture)",
-    "6. Injured skin, lips and gums – Injuries to skin, lips, and gums",
-    "7. Injured jaws and joints – Jaw and joint injuries",
+    "1. Pushed in – Tooth pushed into the gum (Intrusion). Explanation: The tooth has moved into the gum. It may look shorter than normal.",
+    "2. Loosened – Tooth loosened (Subluxation or increased mobility without displacement). Explanation: The tooth is wobbly but still in place.",
+    "3. Knocked out – Tooth knocked out (Avulsion). Explanation: The tooth completely came out of the mouth.",
+    "4. Moved – Tooth displaced but still in the mouth (Luxation). Explanation: The tooth shifted from its original position.",
+    "5. Broken – Tooth fractured (Dental fracture). Explanation: Part of the tooth broke off, but the rest is still attached.",
+    "6. Injured skin, lips and gums – Injuries to skin, lips, and gums. Explanation: There may be cuts or bruises around the mouth.",
+    "7. Injured jaws and joints – Jaw and joint injuries. Explanation: The person may have pain or difficulty moving the jaw.",
     "Remember to translate the terms into the user's language.",
+
     "If the affected tooth is a baby tooth (deciduous), continue by suggesting the possible trauma types:",
-    "1. Pushed in – Tooth pushed into the gum (Intrusion)",
-    "2. Loosened – Tooth loosened (Subluxation)",
-    "3. Knocked out – Tooth knocked out (Avulsion)",
-    "4. Moved – Tooth displaced (appears longer than normal)",
-    "5. Broken – Tooth fractured (Dental fracture)",
-    "6. Injured skin, lips and gums – Injuries to skin, lips, and gums",
-    "7. Injured jaws and joints – Jaw and joint injuries",
+    "1. Pushed in – Tooth pushed into the gum (Intrusion). Explanation: The tooth has moved into the gum and may not be visible.",
+    "2. Loosened – Tooth loosened (Subluxation). Explanation: The baby tooth is shaking more than usual.",
+    "3. Knocked out – Tooth knocked out (Avulsion). Explanation: The baby tooth fell out entirely.",
+    "4. Moved – Tooth displaced (appears longer than normal). Explanation: The tooth moved out of position and may look bigger.",
+    "5. Broken – Tooth fractured (Dental fracture). Explanation: The tooth has broken, but part of it remains in place.",
+    "6. Injured skin, lips and gums – Injuries to skin, lips, and gums. Explanation: The child may have a cut or bruise near the mouth.",
+    "7. Injured jaws and joints – Jaw and joint injuries. Explanation: The child may have trouble opening or moving the jaw.",
     "Remember to translate the terms into the user's language."
 )
 
@@ -65,41 +66,55 @@ async def whatsapp_webhook(request: Request):
     if not from_number.startswith("whatsapp:"):
         from_number = "whatsapp:" + from_number
 
+    # Inicializa histórico do número, se necessário
     if from_number not in conversation_history:
         conversation_history[from_number] = [{"role": "system", "content": "\n".join(conditions)}]
 
+    # Adiciona mensagem do usuário
     conversation_history[from_number].append({"role": "user", "content": incoming_msg})
 
+    # Gera resposta com OpenAI
     completion = client.chat.completions.create(
         model="gpt-4o",
         messages=conversation_history[from_number],
         temperature=0.7,
     )
-
     resposta = completion.choices[0].message.content
+
+    # Adiciona resposta ao histórico
     conversation_history[from_number].append({"role": "assistant", "content": resposta})
 
-    print(f"Enviando mensagem para: {from_number}")
-    print(f"Resposta gerada: {resposta}")
-
-    media_url = None
-    lower_msg = incoming_msg.lower()
-
-    if "deciduous" in lower_msg or "baby tooth" in lower_msg or "dente de leite" in lower_msg:
-        media_url = "https://raw.githubusercontent.com/cristianomaraujo/sos-dental-trauma-bot/main/images/trauma_deciduo.jpg"
-    elif "permanent" in lower_msg or "permanente" in lower_msg:
-        media_url = "https://raw.githubusercontent.com/cristianomaraujo/sos-dental-trauma-bot/main/images/trauma_permanente.jpg"
-
+    # Envia resposta textual
     try:
-        message = twilio_client.messages.create(
+        twilio_client.messages.create(
             messaging_service_sid='MG6acc88f167e54c70d8a0b3801c9f1325',
             to=from_number,
-            body=resposta,
-            media_url=[media_url] if media_url else None
+            body=resposta
         )
-        print(f"Mensagem enviada com sucesso! SID: {message.sid}")
+        print(f"Mensagem de texto enviada com sucesso!")
     except Exception as e:
-        print(f"Erro ao enviar mensagem com Twilio: {e}")
+        print(f"Erro ao enviar mensagem de texto: {e}")
+
+    # Verifica se há solicitação de imagem de traumas
+    incoming_lower = incoming_msg.strip().lower()
+    image_url = None
+
+    if any(x in incoming_lower for x in ["permanent", "permanente", "adult tooth"]):
+        image_url = "https://github.com/cristianomaraujo/sos-dental-trauma-bot/raw/main/images/trauma_permanente.jpg"
+    elif any(x in incoming_lower for x in ["deciduous", "decíduo", "baby tooth", "dente de leite"]):
+        image_url = "https://github.com/cristianomaraujo/sos-dental-trauma-bot/raw/main/images/trauma_deciduo.jpg"
+
+    if image_url:
+        try:
+            twilio_client.messages.create(
+                messaging_service_sid='MG6acc88f167e54c70d8a0b3801c9f1325',
+                to=from_number,
+                media_url=[image_url],
+                body="Here is an image with the main types of trauma for this type of tooth."
+            )
+            print(f"Imagem enviada com sucesso! URL: {image_url}")
+        except Exception as e:
+            print(f"Erro ao enviar imagem: {e}")
 
     return JSONResponse(content={"status": "mensagem enviada"})
 
