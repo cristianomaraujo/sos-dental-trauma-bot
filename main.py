@@ -16,9 +16,10 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 twilio_client = Client(ACCOUNT_SID, AUTH_TOKEN)
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-# Histórico de conversas e tipo de dente por número
+# Histórico de conversas, tipo de dente e idioma
 conversation_history = {}
 dente_tipo_usuario = {}
+idioma_usuario = {}
 
 # Condições iniciais
 conditions = (
@@ -41,8 +42,8 @@ conditions = (
     "3. Knocked out – Tooth knocked out (Avulsion): the tooth came out completely.",
     "4. Moved – Tooth displaced but still in the mouth (Luxation): the tooth moved from its position but is still there.",
     "5. Broken – Tooth fractured (Dental fracture): the tooth chipped or broke.",
-    "6. Injured skin, lips and gums – Injuries to skin, lips, and gums: injuries in soft tissues around the mouth.",
-    "7. Injured jaws and joints – Jaw and joint injuries: pain or trauma in jaw or TMJ area.",
+    "6. Injured skin, lips and gums – Injuries in soft tissues around the mouth.",
+    "7. Injured jaws and joints – Pain or trauma in jaw or TMJ area.",
     "Remember to translate the terms into the user's language.",
 
     "If the affected tooth is a baby tooth (deciduous), continue by suggesting the possible trauma types:",
@@ -56,7 +57,6 @@ conditions = (
     "Remember to translate the terms into the user's language."
 )
 
-
 @app.post("/webhook")
 async def whatsapp_webhook(request: Request):
     form = await request.form()
@@ -66,26 +66,36 @@ async def whatsapp_webhook(request: Request):
     if not incoming_msg or not from_number:
         return JSONResponse(status_code=400, content={"error": "Missing message or sender"})
 
-    # Formata o número corretamente
     if not from_number.startswith("whatsapp:"):
         from_number = "whatsapp:" + from_number
 
-    # Inicializa o histórico e tipo de dente se necessário
     if from_number not in conversation_history:
         conversation_history[from_number] = [{"role": "system", "content": "\n".join(conditions)}]
         dente_tipo_usuario[from_number] = None
+        idioma_usuario[from_number] = None
 
-    # Verifica se a mensagem do usuário indica o tipo de dente
+    # Adiciona a entrada do usuário ao histórico
+    conversation_history[from_number].append({"role": "user", "content": incoming_msg})
+
+    # Detecta idioma da primeira mensagem, se ainda não identificado
+    if idioma_usuario[from_number] is None:
+        detection = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "Detect the language of the following sentence and respond ONLY with the ISO 639-1 code (e.g., 'en', 'pt', 'es', 'it'):"},
+                {"role": "user", "content": incoming_msg}
+            ]
+        )
+        idioma_usuario[from_number] = detection.choices[0].message.content.strip()
+
+    # Verifica se a mensagem indica o tipo de dente
     msg_lower = incoming_msg.lower()
     if any(word in msg_lower for word in ["permanent", "permanente"]):
         dente_tipo_usuario[from_number] = "permanente"
     elif any(word in msg_lower for word in ["baby", "deciduous", "decíduo", "deciduo", "leite", "infantil"]):
         dente_tipo_usuario[from_number] = "deciduo"
 
-    # Adiciona a entrada do usuário ao histórico
-    conversation_history[from_number].append({"role": "user", "content": incoming_msg})
-
-    # Chamada à OpenAI
+    # Gera resposta com OpenAI
     completion = client.chat.completions.create(
         model="gpt-4o",
         messages=conversation_history[from_number],
@@ -94,7 +104,7 @@ async def whatsapp_webhook(request: Request):
     resposta = completion.choices[0].message.content
     conversation_history[from_number].append({"role": "assistant", "content": resposta})
 
-    # Envia resposta principal
+    # Envia a resposta de texto
     try:
         twilio_client.messages.create(
             messaging_service_sid='MG6acc88f167e54c70d8a0b3801c9f1325',
@@ -104,9 +114,11 @@ async def whatsapp_webhook(request: Request):
     except Exception as e:
         print(f"Erro ao enviar mensagem principal: {e}")
 
-    # Verifica se a resposta do modelo inclui a listagem dos traumas
+    # Se a resposta contiver listagem de traumas, envia a imagem correspondente
     if any(x in resposta.lower() for x in ["1. pushed", "1. intrusão", "1. intrusion"]):
         tipo = dente_tipo_usuario.get(from_number)
+        idioma = idioma_usuario.get(from_number)
+
         if tipo == "permanente":
             image_url = "https://github.com/cristianomaraujo/sos-dental-trauma-bot/raw/main/images/trauma_permanente.jpg"
         elif tipo == "deciduo":
@@ -114,19 +126,27 @@ async def whatsapp_webhook(request: Request):
         else:
             image_url = None
 
+        # Tradução da legenda
+        legenda_prompt = f"Translate the following sentence to {idioma}, and respond only with the translated sentence: 'Here is an image to help you identify the trauma type.'"
+        legenda_completion = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": "user", "content": legenda_prompt}],
+            temperature=0.0
+        )
+        legenda_traduzida = legenda_completion.choices[0].message.content.strip()
+
         if image_url:
             try:
                 twilio_client.messages.create(
                     messaging_service_sid='MG6acc88f167e54c70d8a0b3801c9f1325',
                     to=from_number,
                     media_url=[image_url],
-                    body="Here's an image to help you identify the trauma type:"
+                    body=legenda_traduzida
                 )
             except Exception as e:
                 print(f"Erro ao enviar imagem: {e}")
 
     return JSONResponse(content={"status": "mensagem enviada"})
-
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
