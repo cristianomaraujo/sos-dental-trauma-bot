@@ -123,7 +123,7 @@ async def whatsapp_webhook(request: Request):
                     messaging_service_sid='MG6acc88f167e54c70d8a0b3801c9f1325',
                     to=from_number,
                     media_url=[image_url],
-                    body="Here's an image to help you identify the trauma type:"
+                    body="👆👆👆👆👆"
                 )
             except Exception as e:
                 print(f"Erro ao enviar imagem: {e}")
