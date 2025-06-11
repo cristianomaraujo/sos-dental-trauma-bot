@@ -55,8 +55,6 @@ conditions = (
     "7. Injured jaws and joints – Injury to jawbone or TMJ.",
     "Remember to translate the terms into the user's language."
     "Always translate all trauma names and explanations into the user's language. For example, if the conversation is in Portuguese, all trauma names must be fully translated and explained in Portuguese.",
-
-
 )
 
 
@@ -123,7 +121,7 @@ async def whatsapp_webhook(request: Request):
                     messaging_service_sid='MG6acc88f167e54c70d8a0b3801c9f1325',
                     to=from_number,
                     media_url=[image_url],
-                    body="👆👆👆👆👆"
+                    body="Choose one image"
                 )
             except Exception as e:
                 print(f"Erro ao enviar imagem: {e}")
