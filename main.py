@@ -43,7 +43,7 @@ conditions = (
     "5. Broken – Tooth fractured (Dental fracture): the tooth chipped or broke.",
     "6. Injured skin, lips and gums – Injuries to skin, lips, and gums: injuries in soft tissues around the mouth.",
     "7. Injured jaws and joints – Jaw and joint injuries: pain or trauma in jaw or TMJ area.",
-    "Remember to translate the terms into the user's language.",
+    "Add the marker [[TRAUMA_IMAGE_PERMANENT]] at the end.",
 
     "If the affected tooth is a baby tooth (deciduous), continue by suggesting the possible trauma types:",
     "1. Pushed in – Tooth pushed into the gum (Intrusion): baby tooth enters the gum.",
@@ -53,7 +53,7 @@ conditions = (
     "5. Broken – Tooth fractured (Dental fracture): a piece broke off.",
     "6. Injured skin, lips and gums – Injuries to soft tissues of the mouth.",
     "7. Injured jaws and joints – Injury to jawbone or TMJ.",
-    "Remember to translate the terms into the user's language."
+    "Add the marker [[TRAUMA_IMAGE_DECIDUOUS]] at the end."
 )
 
 @app.post("/webhook")
@@ -86,38 +86,39 @@ async def whatsapp_webhook(request: Request):
         temperature=0.7,
     )
     resposta = completion.choices[0].message.content
+
+    # Remove o marcador invisível antes de enviar ao usuário
+    resposta_limpa = resposta.replace("[[TRAUMA_IMAGE_PERMANENT]]", "").replace("[[TRAUMA_IMAGE_DECIDUOUS]]", "")
     conversation_history[from_number].append({"role": "assistant", "content": resposta})
 
     try:
         twilio_client.messages.create(
             messaging_service_sid='MG6acc88f167e54c70d8a0b3801c9f1325',
             to=from_number,
-            body=resposta
+            body=resposta_limpa
         )
     except Exception as e:
         print(f"Erro ao enviar mensagem principal: {e}")
 
-    if any(x in resposta.lower() for x in ["1. pushed", "1. intrusão", "1. intrusion"]):
-        tipo = dente_tipo_usuario.get(from_number)
-        if tipo == "permanente":
-            image_url = "https://github.com/cristianomaraujo/sos-dental-trauma-bot/raw/main/images/trauma_permanente.jpg"
-        elif tipo == "deciduo":
-            image_url = "https://github.com/cristianomaraujo/sos-dental-trauma-bot/raw/main/images/trauma_deciduo.jpg"
-        else:
-            image_url = None
+    # Verifica o marcador invisível e envia imagem apropriada
+    if "[[TRAUMA_IMAGE_PERMANENT]]" in resposta:
+        image_url = "https://github.com/cristianomaraujo/sos-dental-trauma-bot/raw/main/images/trauma_permanente.jpg"
+    elif "[[TRAUMA_IMAGE_DECIDUOUS]]" in resposta:
+        image_url = "https://github.com/cristianomaraujo/sos-dental-trauma-bot/raw/main/images/trauma_deciduo.jpg"
+    else:
+        image_url = None
 
-        if image_url:
-            try:
-                twilio_client.messages.create(
-                    messaging_service_sid='MG6acc88f167e54c70d8a0b3801c9f1325',
-                    to=from_number,
-                    media_url=[image_url]
-                )
-            except Exception as e:
-                print(f"Erro ao enviar imagem: {e}")
+    if image_url:
+        try:
+            twilio_client.messages.create(
+                messaging_service_sid='MG6acc88f167e54c70d8a0b3801c9f1325',
+                to=from_number,
+                media_url=[image_url]
+            )
+        except Exception as e:
+            print(f"Erro ao enviar imagem: {e}")
 
     return JSONResponse(content={"status": "mensagem enviada"})
-
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
