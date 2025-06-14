@@ -46,8 +46,6 @@ conditions = (
     "Remember to translate the terms into the user's language.",
     "Add the marker [[TRAUMA_IMAGE_PERMANENT]] at the end.",
 
-
-
     "If the affected tooth is a baby tooth (deciduous), continue by suggesting the possible trauma types:",
     "1. Pushed in – Tooth pushed into the gum (Intrusion): baby tooth enters the gum.",
     "2. Loosened – Tooth loosened (Subluxation): mobile without falling.",
@@ -143,6 +141,16 @@ async def whatsapp_webhook(request: Request):
             )
         except Exception as e:
             print(f"Erro ao enviar imagem: {e}")
+
+    # Enviar mensagem final com link de dentistas nas proximidades
+    try:
+        twilio_client.messages.create(
+            messaging_service_sid='MG6acc88f167e54c70d8a0b3801c9f1325',
+            to=from_number,
+            body="If you wish, I can help you find nearby dentists. Tap the link below (make sure your device's GPS is enabled):\nhttps://www.google.com/maps/search/dentist+near+me/"
+        )
+    except Exception as e:
+        print(f"Erro ao enviar link do Google Maps: {e}")
 
     return JSONResponse(content={"status": "mensagem enviada"})
 
