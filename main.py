@@ -78,8 +78,10 @@ conditions = (
     "6. Injured skin, lips and gums: Common in accidents; involve cuts or bruises in the mouth; stay calm; clean the area; apply pressure to stop bleeding; seek care depending on the severity.",
     "7. Injured jaws and joints: COULD BE AN EMERGENCY – STAY CALM; call emergency services if needed; if unconscious, check breathing and stability; support the jaw with a dressing; remove the bandage if the patient feels nauseous; go to the hospital immediately.",
 
-    "At the end of the conversation, kindly let the patient know that you will share a link to help them find nearby dentists. Just remind them to make sure their device’s GPS is turned on."
-    "Wish them the best and give a final farewell, and if so, include the marker [[SEND_DENTIST_LINK]]"
+    "After providing the guidance, ask the patient if they have any questions you can help with.",
+    "After the response to the previous item, at the end of the conversation, kindly ask the patient if they would like you to share a link to help them find nearby dentists. Just remind them that their device’s GPS needs to be turned on.",
+"After the response to the previous item, in a separate message, wish the patient well and say a warm goodbye. If the patient said yes (that they would like the link), include the marker [[SEND_DENTIST_LINK]]. Otherwise, just give the final farewell."
+
 )
 
 
