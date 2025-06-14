@@ -29,6 +29,7 @@ conditions = (
     "Ask if the affected tooth is permanent or a baby tooth (deciduous), or if the patient does not know.",
     "Explain that the first step in care is to identify whether the injured tooth is a primary (baby) or permanent tooth.",
     "Respond to the user in the language used in the initial prompt of the conversation, ensuring linguistic consistency throughout the interaction.",
+    "Translate all trauma names into the user's language.",
     "If the patient doesn't know, explain that primary teeth are usually smaller and are mostly found in children under 6 years of age. Then ask again.",
     "In case of doubt, emphasize that this identification is essential because the appropriate course of action depends on the type of tooth.",
     "If it's not possible to determine the type of tooth, stay calm and handle the situation with care.",
@@ -80,7 +81,7 @@ conditions = (
 
     "After providing the guidance, ask the patient if they have any questions you can help with.",
     "After the response to the previous item, at the end of the conversation, kindly ask the patient if they would like you to share a link to help them find nearby dentists. Just remind them that their device’s GPS needs to be turned on.",
-"After the response to the previous item, in a separate message, wish the patient well and say a warm goodbye. If the patient said yes (that they would like the link), include the marker [[SEND_DENTIST_LINK]]. Otherwise, just give the final farewell."
+    "After the response to the previous item, in a separate message, wish the patient well and say a warm goodbye. If the patient said yes (that they would like the link), include the marker [[SEND_DENTIST_LINK]]. Otherwise, just give the final farewell."
 
 )
 
@@ -153,7 +154,7 @@ async def whatsapp_webhook(request: Request):
             twilio_client.messages.create(
                 messaging_service_sid='MG6acc88f167e54c70d8a0b3801c9f1325',
                 to=from_number,
-                body="If you wish, I can help you find dentists nearby. Just make sure your device's GPS is enabled: https://www.google.com/maps/search/dentist+near+me/"
+                body="https://www.google.com/maps/search/dentist+near+me/"
             )
         except Exception as e:
             print(f"Erro ao enviar link do dentista: {e}")
