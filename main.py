@@ -76,7 +76,9 @@ conditions = (
     "4. Moved: Stay calm — for both the child and caregiver; see a dentist for follow-up; do not reposition; keep the area clean.",
     "5. Broken (Crown Fracture): Stay calm — for both the child and caregiver; look for the fragment and check if it was swallowed or inhaled — if so, go to the ER; if not necessary, go to the dentist to reattach the fragment, storing it in saline, milk, or saliva; NEVER reimplant baby teeth; follow-up for the permanent tooth is essential over the years.",
     "6. Injured skin, lips and gums: Common in accidents; involve cuts or bruises in the mouth; stay calm; clean the area; apply pressure to stop bleeding; seek care depending on the severity.",
-    "7. Injured jaws and joints: COULD BE AN EMERGENCY – STAY CALM; call emergency services if needed; if unconscious, check breathing and stability; support the jaw with a dressing; remove the bandage if the patient feels nauseous; go to the hospital immediately."
+    "7. Injured jaws and joints: COULD BE AN EMERGENCY – STAY CALM; call emergency services if needed; if unconscious, check breathing and stability; support the jaw with a dressing; remove the bandage if the patient feels nauseous; go to the hospital immediately.",
+
+    "At the end of the conversation, ask the patient if they would like help finding nearby dentists, and if so, include the marker [[SEND_DENTIST_LINK]]."
 )
 
 
@@ -111,8 +113,8 @@ async def whatsapp_webhook(request: Request):
     )
     resposta = completion.choices[0].message.content
 
-    # Remove o marcador invisível antes de enviar ao usuário
-    resposta_limpa = resposta.replace("[[TRAUMA_IMAGE_PERMANENT]]", "").replace("[[TRAUMA_IMAGE_DECIDUOUS]]", "")
+    # Remove os marcadores invisíveis antes de exibir
+    resposta_limpa = resposta.replace("[[TRAUMA_IMAGE_PERMANENT]]", "").replace("[[TRAUMA_IMAGE_DECIDUOUS]]", "").replace("[[SEND_DENTIST_LINK]]", "")
     conversation_history[from_number].append({"role": "assistant", "content": resposta})
 
     try:
@@ -124,7 +126,7 @@ async def whatsapp_webhook(request: Request):
     except Exception as e:
         print(f"Erro ao enviar mensagem principal: {e}")
 
-    # Verifica o marcador invisível e envia imagem apropriada
+    # Verifica e envia imagem apropriada
     if "[[TRAUMA_IMAGE_PERMANENT]]" in resposta:
         image_url = "https://github.com/cristianomaraujo/sos-dental-trauma-bot/raw/main/images/trauma_permanente.jpg"
     elif "[[TRAUMA_IMAGE_DECIDUOUS]]" in resposta:
@@ -142,17 +144,19 @@ async def whatsapp_webhook(request: Request):
         except Exception as e:
             print(f"Erro ao enviar imagem: {e}")
 
-    # Enviar mensagem final com link de dentistas nas proximidades
-    try:
-        twilio_client.messages.create(
-            messaging_service_sid='MG6acc88f167e54c70d8a0b3801c9f1325',
-            to=from_number,
-            body="If you wish, I can help you find nearby dentists. Tap the link below (make sure your device's GPS is enabled):\nhttps://www.google.com/maps/search/dentist+near+me/"
-        )
-    except Exception as e:
-        print(f"Erro ao enviar link do Google Maps: {e}")
+    # Verifica e envia link de dentista, se marcado
+    if "[[SEND_DENTIST_LINK]]" in resposta:
+        try:
+            twilio_client.messages.create(
+                messaging_service_sid='MG6acc88f167e54c70d8a0b3801c9f1325',
+                to=from_number,
+                body="If you wish, I can help you find dentists nearby. Just make sure your device's GPS is enabled: https://www.google.com/maps/search/dentist+near+me/"
+            )
+        except Exception as e:
+            print(f"Erro ao enviar link do dentista: {e}")
 
     return JSONResponse(content={"status": "mensagem enviada"})
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
