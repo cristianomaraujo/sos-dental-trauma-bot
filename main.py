@@ -74,7 +74,7 @@ conditions = (
     "2. Loosened: Stay calm — for both the child and caregiver; go to the dentist for follow-up; do not attempt repositioning; keep the area clean.",
     "3. Knocked out: Stay calm — for both the child and caregiver; look for the tooth and check if it was swallowed or inhaled — if in doubt, go to the ER; if not necessary, go straight to the dentist; NEVER reimplant baby teeth; monitoring of the permanent tooth development is required.",
     "4. Moved: Stay calm. This is an emergency and needs immediate care by a dentist as soon as possible. Try to move the teeth gently to their original position. Close the mouth with a piece of gauze, clean handkerchief or napkin between the upper and lower front teeth. Visit your dentist or an emergency service as soon as possible! The first few hours are critical.",
-    "5. Broken: Stay calm — for both the child and caregiver; look for the fragment and check if it was swallowed or inhaled — if so, go to the ER; if not necessary, go to the dentist to reattach the fragment, storing it in saline, milk, or saliva.",
+    "5. Broken: Do not panic. 1. Clean the área with gaze 2.Soft diet for up 2 weeks;3 Visit the dentist for folow up;"
     "6. Injured skin, lips and gums: Common in accidents; involve cuts or bruises in the mouth; stay calm; clean the area; apply pressure to stop bleeding; seek care depending on the severity.",
     "7. Injured jaws and joints: COULD BE AN EMERGENCY – STAY CALM; call emergency services if needed; if unconscious, check breathing and stability; support the jaw with a dressing; remove the bandage if the patient feels nauseous; go to the hospital immediately.",
 
